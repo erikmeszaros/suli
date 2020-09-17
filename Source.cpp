@@ -4,35 +4,29 @@
 
 using namespace std;
 
-void stat_kiir(Character* player){  //const??
-	cout << player->getName() << "\t HP: " << player->getHp() << " , DMG: " << player->getDamage() << endl;
-}
-
-bool isDead(Character* player){ //const??
-	return player->getHp()<=0;
-}
-
-void game_master(Character* player1, Character* player2){
+void auto_combat(Character* const player1, Character* const player2){
 	int turn=1;
-	bool dead=false;
-	while (!dead){
-		stat_kiir(player1);stat_kiir(player2);
+	bool end=false;
+	while (!end){
+		player1->stat_out();player2->stat_out();
 		switch (turn){
 			case 1:
 				cout<<player1->getName()<<" -> "<<player2->getName()<<endl;
-				player2->setHp(player2->getHp() - player1->getDamage());
+				player1->attack(player2);
 				turn=2;
-				if (isDead(player2)){
-					dead=true;
+				if (player2->Death()){
+					end=true;
+					player1->stat_out();player2->stat_out();	
 					cout<< player2->getName()<<" died. "<< player1->getName()<<" wins.\n";
 				}
 				break;
 			case 2:
 				cout<<player2->getName()<<" -> "<<player1->getName()<<endl;
-				player1->setHp(player1->getHp() - player2->getDamage());
+				player2->attack(player1);
 				turn=1;
-				if (isDead(player1)){
-					dead=true;
+				if (player1->Death()){
+					end=true;
+					player1->stat_out();player2->stat_out();
 					cout<< player1->getName()<<" died. "<< player2->getName()<<" wins.\n";
 				}
 				break;
@@ -44,6 +38,7 @@ void game_master(Character* player1, Character* player2){
 int main(int argc, char* argv[]) {
 	cout << "Program running: " << argv[0] << endl;
 	cout << "2 characters with 3 parameters each (name, HP, dmg)\n";
+	
 	if (argc != 7) {
 		cout << argv[0] << " 2 characters with 3-3 parameters\n";
 	}
@@ -55,12 +50,12 @@ int main(int argc, char* argv[]) {
 		int hp1, hp2, dmg1, dmg2;
 		ss >> name1 ; ss >> hp1; ss >> dmg1; ss >> name2; ss >> hp2; ss >> dmg2;
 		
-		Character player1(name1, hp1, dmg1);
-		Character player2(name2, hp2, dmg2);
+		Character* player1=new Character(name1, hp1, dmg1);
+		Character* player2=new Character(name2, hp2, dmg2);
 		
-		game_master(&player1,&player2);
-
+		auto_combat(player1,player2);
+		delete player1;
+		delete player2;
 	}
-
 	return 0;
 }
